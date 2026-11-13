@@ -11,7 +11,6 @@ final class StatusBarController: NSObject {
     private var totalResetItem: NSMenuItem!
     private var fiveHourUsageItem: NSMenuItem!
     private var fiveHourResetItem: NSMenuItem!
-    private var wasLoginRequired = false
 
     init(model: SubscriptionModel, openMainWindow: @escaping () -> Void) {
         self.model = model
@@ -72,11 +71,6 @@ final class StatusBarController: NSObject {
         totalResetItem.title = "总使用量重置时间：\(model.totalResetTime)"
         fiveHourUsageItem.title = "5小时用量：\(model.fiveHourUsage)"
         fiveHourResetItem.title = "5小时用量重置时间：\(model.fiveHourResetTime)"
-
-        if model.isLoginRequired, !wasLoginRequired {
-            openMainWindowAction()
-        }
-        wasLoginRequired = model.isLoginRequired
     }
 
     @objc private func refresh() {
