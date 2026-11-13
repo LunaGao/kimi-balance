@@ -2,6 +2,10 @@
 
 一款原生 macOS 菜单栏应用，用于展示 Kimi 订阅的总使用量和 5 小时用量。
 
+## 界面预览
+
+![Kimi Balance 菜单栏用量展示](docs/images/menu-bar.png)
+
 ## 功能
 
 - 菜单栏实时显示总使用量和 5 小时用量。
