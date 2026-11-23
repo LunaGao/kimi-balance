@@ -62,6 +62,7 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
         }
         isLoginRequired = false
         readUsageWhenReady(generation: loadGeneration)
+        readAvatarWhenReady(generation: loadGeneration)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -151,20 +152,11 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
 
                         const totalSection = sectionFor(/总使用量/);
                         const fiveHourSection = sectionFor(/5\\s*小时/);
-                        const avatar = document.querySelector([
-                            '[class*="avatar" i] img',
-                            'img[class*="avatar" i]',
-                            'img[alt*="avatar" i]',
-                            'img[alt*="头像"]',
-                            'img[src*="avatar" i]',
-                            '[data-testid*="avatar" i] img'
-                        ].join(","));
                         return {
                             total: usageIn(totalSection),
                             totalReset: resetIn(totalSection),
                             fiveHour: usageIn(fiveHourSection),
-                            fiveHourReset: resetIn(fiveHourSection),
-                            avatar: avatar?.currentSrc || avatar?.src || null
+                            fiveHourReset: resetIn(fiveHourSection)
                         };
                     })()
                     """
@@ -177,13 +169,49 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
                 if let fiveHour { fiveHourUsage = fiveHour }
                 if let reset = values["totalReset"] as? String { totalResetTime = reset }
                 if let reset = values["fiveHourReset"] as? String { fiveHourResetTime = reset }
-                if let avatar = values["avatar"] as? String, let url = URL(string: avatar) {
-                    avatarURL = url
-                }
                 if total != nil && fiveHour != nil { return }
             }
             if generation == loadGeneration {
                 showLogin()
+            }
+        }
+    }
+
+    private func readAvatarWhenReady(generation: Int) {
+        Task {
+            for attempt in 0..<4 {
+                let delay: UInt64 = attempt == 0 ? 1_500_000_000 : 1_000_000_000
+                try? await Task.sleep(nanoseconds: delay)
+                guard generation == loadGeneration else { return }
+
+                let script = """
+                    const token = localStorage.getItem("access_token");
+                    if (!token) return null;
+                    const response = await fetch("/api/user", {
+                        credentials: "include",
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (!response.ok) return null;
+                    const user = await response.json();
+                    return typeof user.avatar === "string" && user.avatar.length > 0
+                        ? user.avatar
+                        : null;
+                    """
+                let result: Any? = await withCheckedContinuation { continuation in
+                    backgroundWebView.callAsyncJavaScript(
+                        script,
+                        arguments: [:],
+                        in: nil,
+                        in: .page
+                    ) { result in
+                        continuation.resume(returning: try? result.get())
+                    }
+                }
+                guard generation == loadGeneration else { return }
+                if let avatar = result as? String, let url = URL(string: avatar) {
+                    avatarURL = url
+                    return
+                }
             }
         }
     }
