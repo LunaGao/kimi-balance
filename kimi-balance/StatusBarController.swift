@@ -11,6 +11,8 @@ final class StatusBarController: NSObject {
     private var totalResetItem: NSMenuItem!
     private var fiveHourUsageItem: NSMenuItem!
     private var fiveHourResetItem: NSMenuItem!
+    private var avatarLoadTask: Task<Void, Never>?
+    private var loadedAvatarURL: URL?
 
     init(model: SubscriptionModel, openMainWindow: @escaping () -> Void) {
         self.model = model
@@ -28,11 +30,6 @@ final class StatusBarController: NSObject {
 
     private func setupStatusItem() {
         guard let button = statusItem.button else { return }
-        button.image = NSImage(
-            systemSymbolName: "chart.bar.fill",
-            accessibilityDescription: "Kimi 订阅用量"
-        )
-        button.image?.isTemplate = true
         button.imagePosition = .imageLeading
         button.font = .monospacedDigitSystemFont(ofSize: 12, weight: .regular)
         button.toolTip = "Kimi 订阅用量"
@@ -66,11 +63,65 @@ final class StatusBarController: NSObject {
     }
 
     private func updateContent() {
-        statusItem.button?.title = "总 \(model.totalUsage)   5小时 \(model.fiveHourUsage)"
+        if model.isLoginRequired {
+            avatarLoadTask?.cancel()
+            loadedAvatarURL = nil
+            statusItem.button?.image = nil
+            statusItem.button?.title = "请完成登录"
+        } else {
+            statusItem.button?.title = "总\(model.totalUsage) 5小时\(model.fiveHourUsage)"
+            if loadedAvatarURL != model.avatarURL {
+                loadedAvatarURL = model.avatarURL
+                loadAvatar()
+            }
+        }
         totalUsageItem.title = "总使用量：\(model.totalUsage)"
         totalResetItem.title = "总使用量重置时间：\(model.totalResetTime)"
         fiveHourUsageItem.title = "5小时用量：\(model.fiveHourUsage)"
         fiveHourResetItem.title = "5小时用量重置时间：\(model.fiveHourResetTime)"
+    }
+
+    private func loadAvatar() {
+        avatarLoadTask?.cancel()
+        statusItem.button?.image = NSImage(
+            systemSymbolName: "person.circle.fill",
+            accessibilityDescription: "用户头像"
+        )
+        guard let url = model.avatarURL else { return }
+
+        avatarLoadTask = Task { [weak self] in
+            guard let (data, _) = try? await URLSession.shared.data(from: url),
+                  !Task.isCancelled,
+                  let image = NSImage(data: data) else { return }
+            self?.applyAvatar(image, for: url)
+        }
+    }
+
+    private func applyAvatar(_ image: NSImage, for url: URL) {
+        guard !model.isLoginRequired, model.avatarURL == url else { return }
+        statusItem.button?.image = circularAvatar(from: image)
+    }
+
+    private func circularAvatar(from source: NSImage) -> NSImage {
+        let size = NSSize(width: 18, height: 18)
+        guard source.size.width > 0, source.size.height > 0 else { return source }
+
+        let image = NSImage(size: size)
+        image.lockFocus()
+        NSGraphicsContext.current?.imageInterpolation = .high
+        NSBezierPath(ovalIn: NSRect(origin: .zero, size: size)).addClip()
+        let scale = max(size.width / source.size.width, size.height / source.size.height)
+        let drawSize = NSSize(width: source.size.width * scale, height: source.size.height * scale)
+        let drawRect = NSRect(
+            x: (size.width - drawSize.width) / 2,
+            y: (size.height - drawSize.height) / 2,
+            width: drawSize.width,
+            height: drawSize.height
+        )
+        source.draw(in: drawRect, from: .zero, operation: .sourceOver, fraction: 1)
+        image.unlockFocus()
+        image.isTemplate = false
+        return image
     }
 
     @objc private func refresh() {

@@ -12,6 +12,7 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
     @Published private(set) var totalResetTime = "--"
     @Published private(set) var fiveHourUsage = "--"
     @Published private(set) var fiveHourResetTime = "--"
+    @Published private(set) var avatarURL: URL?
 
     private let subscriptionURL = URL(string: "https://www.kimi.com/settings/subscription")!
     private var backgroundWebView: WKWebView!
@@ -98,6 +99,7 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
         totalResetTime = "--"
         fiveHourUsage = "--"
         fiveHourResetTime = "--"
+        avatarURL = nil
     }
 
     private func hasValidKimiCookie() async -> Bool {
@@ -149,11 +151,20 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
 
                         const totalSection = sectionFor(/总使用量/);
                         const fiveHourSection = sectionFor(/5\\s*小时/);
+                        const avatar = document.querySelector([
+                            '[class*="avatar" i] img',
+                            'img[class*="avatar" i]',
+                            'img[alt*="avatar" i]',
+                            'img[alt*="头像"]',
+                            'img[src*="avatar" i]',
+                            '[data-testid*="avatar" i] img'
+                        ].join(","));
                         return {
                             total: usageIn(totalSection),
                             totalReset: resetIn(totalSection),
                             fiveHour: usageIn(fiveHourSection),
-                            fiveHourReset: resetIn(fiveHourSection)
+                            fiveHourReset: resetIn(fiveHourSection),
+                            avatar: avatar?.currentSrc || avatar?.src || null
                         };
                     })()
                     """
@@ -166,6 +177,9 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
                 if let fiveHour { fiveHourUsage = fiveHour }
                 if let reset = values["totalReset"] as? String { totalResetTime = reset }
                 if let reset = values["fiveHourReset"] as? String { fiveHourResetTime = reset }
+                if let avatar = values["avatar"] as? String, let url = URL(string: avatar) {
+                    avatarURL = url
+                }
                 if total != nil && fiveHour != nil { return }
             }
             if generation == loadGeneration {
