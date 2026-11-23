@@ -1,9 +1,11 @@
 import AppKit
 import Combine
+import Sparkle
 
 @MainActor
 final class StatusBarController: NSObject {
     private let model: SubscriptionModel
+    private let updaterController: SPUStandardUpdaterController
     private let openMainWindowAction: () -> Void
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private var cancellable: AnyCancellable?
@@ -14,8 +16,13 @@ final class StatusBarController: NSObject {
     private var avatarLoadTask: Task<Void, Never>?
     private var loadedAvatarURL: URL?
 
-    init(model: SubscriptionModel, openMainWindow: @escaping () -> Void) {
+    init(
+        model: SubscriptionModel,
+        updaterController: SPUStandardUpdaterController,
+        openMainWindow: @escaping () -> Void
+    ) {
         self.model = model
+        self.updaterController = updaterController
         openMainWindowAction = openMainWindow
         super.init()
         setupStatusItem()
@@ -54,9 +61,17 @@ final class StatusBarController: NSObject {
         let mainWindowItem = NSMenuItem(title: "显示主窗口", action: #selector(openMainWindow), keyEquivalent: "o")
         mainWindowItem.target = self
         menu.addItem(mainWindowItem)
+
+        let updateItem = NSMenuItem(
+            title: "检查更新…",
+            action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
+            keyEquivalent: ""
+        )
+        updateItem.target = updaterController
+        menu.addItem(updateItem)
         menu.addItem(.separator())
 
-        let quitItem = NSMenuItem(title: "退出 kimi-balance", action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: "退出 Kimi Balance", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
         statusItem.menu = menu

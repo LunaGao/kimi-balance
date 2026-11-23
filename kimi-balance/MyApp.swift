@@ -1,9 +1,15 @@
 import AppKit
+import Sparkle
 import SwiftUI
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private let subscriptionModel = SubscriptionModel()
+    private let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true,
+        updaterDelegate: nil,
+        userDriverDelegate: nil
+    )
     private var statusBarController: StatusBarController?
     private var mainWindow: NSWindow?
 
@@ -11,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         NSApp.setActivationPolicy(.accessory)
         statusBarController = StatusBarController(
             model: subscriptionModel,
+            updaterController: updaterController,
             openMainWindow: showMainWindow
         )
     }

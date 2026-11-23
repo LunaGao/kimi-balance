@@ -10,9 +10,31 @@
       "Base",
     ],
   },
-  "files": [
-    { "kind": "folder", "path": "kimi-balance", "target-membership": [ "kimi-balance" ] },
+  "packages": [
     {
+      "kind": "remote",
+      "repository": "https://github.com/sparkle-project/Sparkle",
+      "version": {
+        "up-to-next-major-version": "2.9.2",
+      },
+    },
+  ],
+  "files": [
+    {
+      "kind": "folder",
+      "path": "kimi-balance",
+      "target-membership": [
+        "kimi-balance",
+      ],
+      "membership-exceptions": [
+        {
+          "target": "kimi-balance",
+          "exclusions": [
+            "Info.plist",
+          ],
+        },
+      ],
+    }, {
       "kind": "group",
       "name": "Products",
       "children": [
@@ -30,6 +52,18 @@
         "compile-sources",
         "frameworks",
         "resources",
+        {
+          "kind": "copy",
+          "name": "Embed Frameworks",
+          "bundle-base-path": "frameworks-directory",
+        },
+      ],
+      "package-product-members": [
+        {
+          "package": "Sparkle",
+          "product-name": "Sparkle",
+          "build-phase": { "build-phase": "frameworks" },
+        },
       ],
       "build-settings": {
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
@@ -42,6 +76,7 @@
         "ENABLE_PREVIEWS": "YES",
         "ENABLE_USER_SELECTED_FILES": "readonly",
         "GENERATE_INFOPLIST_FILE": "YES",
+        "INFOPLIST_FILE": "kimi-balance/Info.plist",
         "INFOPLIST_KEY_CFBundleDisplayName": "Kimi Balance",
         "INFOPLIST_KEY_CFBundleName": "Kimi Balance",
         "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.developer-tools",

@@ -1,0 +1,147 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      APP_NAME: Kimi Balance
+      DMG_NAME: Kimi-Balance.dmg
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "27.2"
+
+      - name: Validate release version
+        shell: bash
+        run: |
+          VERSION="$(python3 -c 'import json; print(json.load(open("kimi-balance.xcodeproj/project.xcproj"))["targets"][0]["build-settings"]["MARKETING_VERSION"])')"
+          if [[ "v${VERSION}" != "${GITHUB_REF_NAME}" ]]; then
+            echo "Tag ${GITHUB_REF_NAME} must match MARKETING_VERSION ${VERSION}."
+            exit 1
+          fi
+          echo "VERSION=${VERSION}" >> "${GITHUB_ENV}"
+
+      - name: Import Developer ID certificate
+        shell: bash
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN_PATH="${RUNNER_TEMP}/build.keychain-db"
+          CERTIFICATE_PATH="${RUNNER_TEMP}/developer-id.p12"
+          security create-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
+          security set-keychain-settings -lut 3600 "${KEYCHAIN_PATH}"
+          security unlock-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
+          echo "${MACOS_CERTIFICATE}" | base64 -D > "${CERTIFICATE_PATH}"
+          security import "${CERTIFICATE_PATH}" \
+            -k "${KEYCHAIN_PATH}" \
+            -P "${MACOS_CERTIFICATE_PASSWORD}" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security
+          rm "${CERTIFICATE_PATH}"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
+          security list-keychains -d user -s "${KEYCHAIN_PATH}" login.keychain-db
+          security default-keychain -d user -s "${KEYCHAIN_PATH}"
+          security find-identity -v -p codesigning "${KEYCHAIN_PATH}"
+          echo "KEYCHAIN_PATH=${KEYCHAIN_PATH}" >> "${GITHUB_ENV}"
+
+      - name: Archive application
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project kimi-balance.xcodeproj \
+            -scheme kimi-balance \
+            -configuration Release \
+            -destination 'platform=macOS' \
+            -archivePath build/KimiBalance.xcarchive \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY='Developer ID Application' \
+            DEVELOPMENT_TEAM=KFNX7T9G9N \
+            archive
+
+      - name: Export Developer ID application
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -exportArchive \
+            -archivePath build/KimiBalance.xcarchive \
+            -exportPath build/export \
+            -exportOptionsPlist ci/ExportOptions.plist
+          test -d "build/export/${APP_NAME}.app"
+
+      - name: Create disk image
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/dmg
+          ditto "build/export/${APP_NAME}.app" "build/dmg/${APP_NAME}.app"
+          ln -s /Applications build/dmg/Applications
+          hdiutil create \
+            -volname "${APP_NAME}" \
+            -srcfolder build/dmg \
+            -fs APFS \
+            -format ULFO \
+            -ov \
+            "build/${DMG_NAME}"
+
+      - name: Notarize disk image
+        shell: bash
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: KFNX7T9G9N
+        run: |
+          set -euo pipefail
+          xcrun notarytool submit "build/${DMG_NAME}" \
+            --apple-id "${APPLE_ID}" \
+            --team-id "${APPLE_TEAM_ID}" \
+            --password "${APPLE_APP_SPECIFIC_PASSWORD}" \
+            --wait
+          xcrun stapler staple "build/${DMG_NAME}"
+
+      - name: Generate Sparkle appcast
+        shell: bash
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          SPARKLE_BIN="$(find "${HOME}/Library/Developer/Xcode/DerivedData" -type d -path '*/SourcePackages/artifacts/sparkle/Sparkle/bin' -print -quit)"
+          if [[ -z "${SPARKLE_BIN}" ]]; then
+            echo "Sparkle tools were not found in the resolved Swift package."
+            exit 1
+          fi
+          mkdir -p build/appcast
+          cp "build/${DMG_NAME}" build/appcast/
+          cd build/appcast
+          echo "${SPARKLE_PRIVATE_KEY}" | "${SPARKLE_BIN}/generate_appcast" \
+            --ed-key-file - \
+            --download-url-prefix "https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/" \
+            .
+          test -s appcast.xml
+
+      - name: Publish GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release create "${GITHUB_REF_NAME}" \
+            "build/${DMG_NAME}" \
+            build/appcast/appcast.xml \
+            --title "${APP_NAME} ${VERSION}" \
+            --generate-notes
