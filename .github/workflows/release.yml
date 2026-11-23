@@ -140,8 +140,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          RELEASE_NOTES_PATH="docs/releases/${GITHUB_REF_NAME}.md"
+          if [[ -f "${RELEASE_NOTES_PATH}" ]]; then
+            NOTES_ARGS=(--notes-file "${RELEASE_NOTES_PATH}")
+          else
+            NOTES_ARGS=(--generate-notes)
+          fi
           gh release create "${GITHUB_REF_NAME}" \
             "build/${DMG_NAME}" \
             build/appcast/appcast.xml \
             --title "${APP_NAME} ${VERSION}" \
-            --generate-notes
+            "${NOTES_ARGS[@]}"

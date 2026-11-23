@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import Sparkle
+import SwiftUI
 
 @MainActor
 final class StatusBarController: NSObject {
@@ -15,6 +16,7 @@ final class StatusBarController: NSObject {
     private var fiveHourResetItem: NSMenuItem!
     private var avatarLoadTask: Task<Void, Never>?
     private var loadedAvatarURL: URL?
+    private var settingsWindow: NSWindow?
 
     init(
         model: SubscriptionModel,
@@ -61,6 +63,10 @@ final class StatusBarController: NSObject {
         let mainWindowItem = NSMenuItem(title: "显示主窗口", action: #selector(openMainWindow), keyEquivalent: "o")
         mainWindowItem.target = self
         menu.addItem(mainWindowItem)
+
+        let settingsItem = NSMenuItem(title: "设置…", action: #selector(showSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
 
         let updateItem = NSMenuItem(
             title: "检查更新…",
@@ -145,6 +151,27 @@ final class StatusBarController: NSObject {
 
     @objc private func openMainWindow() {
         openMainWindowAction()
+    }
+
+    @objc private func showSettings() {
+        if let settingsWindow {
+            settingsWindow.makeKeyAndOrderFront(nil)
+        } else {
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 600, height: 700),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable],
+                backing: .buffered,
+                defer: false
+            )
+            window.title = "Kimi Balance Settings"
+            window.contentView = NSHostingView(rootView: SettingsView())
+            window.contentMinSize = NSSize(width: 600, height: 500)
+            window.isReleasedWhenClosed = false
+            window.center()
+            window.makeKeyAndOrderFront(nil)
+            settingsWindow = window
+        }
+        NSApp.activate(ignoringOtherApps: true)
     }
 
     @objc private func quit() {
