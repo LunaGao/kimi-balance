@@ -69,7 +69,7 @@ final class StatusBarController: NSObject {
             statusItem.button?.image = nil
             statusItem.button?.title = "请完成登录"
         } else {
-            statusItem.button?.title = "总\(model.totalUsage) 5小时\(model.fiveHourUsage)"
+            statusItem.button?.title = " 总\(model.totalUsage) 5小时\(model.fiveHourUsage)"
             if loadedAvatarURL != model.avatarURL {
                 loadedAvatarURL = model.avatarURL
                 loadAvatar()
