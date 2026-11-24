@@ -48,3 +48,23 @@ func localized(_ key: String, _ arguments: CVarArg...) -> String {
     )
     return arguments.isEmpty ? format : String(format: format, arguments: arguments)
 }
+
+func localizedResetTime(_ resetTime: String) -> String {
+    let text = resetTime.trimmingCharacters(in: .whitespacesAndNewlines)
+    switch AppLanguage.current {
+    case .english:
+        let suffix = "后重置"
+        guard text.hasSuffix(suffix) else { return resetTime }
+        let time = text.dropLast(suffix.count).trimmingCharacters(in: .whitespaces)
+        return localized("usage.reset_after", time)
+    case .chinese:
+        for prefix in ["Reset after ", "Resets after "] {
+            guard text.range(of: prefix, options: [.anchored, .caseInsensitive]) != nil else {
+                continue
+            }
+            let time = text.dropFirst(prefix.count).trimmingCharacters(in: .whitespaces)
+            return localized("usage.reset_after", time)
+        }
+        return resetTime
+    }
+}

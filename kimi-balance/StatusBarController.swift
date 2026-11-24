@@ -180,9 +180,15 @@ final class StatusBarController: NSObject {
     private func updateLocalizedContent() {
         statusItem.button?.toolTip = localized("app.title")
         totalUsageItem.title = localized("menu.total_usage", model.totalUsage)
-        totalResetItem.title = localized("menu.total_reset", model.totalResetTime)
+        totalResetItem.title = localized(
+            "menu.total_reset",
+            localizedResetTime(model.totalResetTime)
+        )
         fiveHourUsageItem.title = localized("menu.five_hour_usage", model.fiveHourUsage)
-        fiveHourResetItem.title = localized("menu.five_hour_reset", model.fiveHourResetTime)
+        fiveHourResetItem.title = localized(
+            "menu.five_hour_reset",
+            localizedResetTime(model.fiveHourResetTime)
+        )
         refreshItem.title = localized("menu.refresh_now")
         mainWindowItem.title = localized("menu.show_main_window")
         settingsItem.title = localized("menu.settings")

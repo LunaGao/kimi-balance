@@ -282,7 +282,7 @@ struct ContentView: View {
                                 .foregroundStyle(.secondary)
                             Text(model.totalUsage)
                                 .font(.title)
-                            Text(model.totalResetTime)
+                            Text(localizedResetTime(model.totalResetTime))
                                 .foregroundStyle(.secondary)
                         }
                         VStack {
@@ -290,7 +290,7 @@ struct ContentView: View {
                                 .foregroundStyle(.secondary)
                             Text(model.fiveHourUsage)
                                 .font(.title)
-                            Text(model.fiveHourResetTime)
+                            Text(localizedResetTime(model.fiveHourResetTime))
                                 .foregroundStyle(.secondary)
                         }
                     }
