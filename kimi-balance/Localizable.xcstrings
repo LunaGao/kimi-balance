@@ -1,370 +1,1050 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "accessibility.avatar" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "User Avatar" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用户头像" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "User Avatar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用户头像"
+          }
+        }
       }
     },
     "accessibility.usage" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Usage: %@, 5-Hour Usage: %@" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "总使用量：%@，5小时用量：%@" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Usage: %@, 5-Hour Usage: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总使用量：%@，5小时用量：%@"
+          }
+        }
       }
     },
     "app.title" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Kimi Subscription Usage" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Kimi 订阅用量" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kimi Subscription Usage"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kimi 订阅用量"
+          }
+        }
       }
     },
     "common.ok" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "好" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
+          }
+        }
       }
     },
     "common.retry" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Retry" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重试" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
       }
     },
     "common.unknown" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unknown" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未知" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知"
+          }
+        }
       }
     },
+    "GitHub" : {
+
+    },
+    "LunaGao/kimi-balance" : {
+
+    },
     "main.auto_refresh" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Subscription usage updates automatically in the background" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "订阅用量正在后台自动更新" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subscription usage updates automatically in the background"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "订阅用量正在后台自动更新"
+          }
+        }
       }
     },
     "main.five_hour_usage" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "5-Hour Usage" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "5小时用量" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5-Hour Usage"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5小时用量"
+          }
+        }
       }
     },
     "main.login_completed" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Login Completed, View Usage" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "登录完成，查看用量" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login Completed, View Usage"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录完成，查看用量"
+          }
+        }
       }
     },
     "main.refresh_now" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh Now" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "立即刷新" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh Now"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即刷新"
+          }
+        }
       }
     },
     "main.sign_in_prompt" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign in to Kimi on this page" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请在页面中登录 Kimi" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to Kimi on this page"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请在页面中登录 Kimi"
+          }
+        }
       }
     },
     "main.total_usage" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Usage" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "总使用量" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Usage"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总使用量"
+          }
+        }
       }
     },
     "menu.check_updates" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check for Updates…" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "检查更新…" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check for Updates…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检查更新…"
+          }
+        }
       }
     },
     "menu.five_hour_reset" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "5-Hour Usage Reset: %@" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "5小时用量重置时间：%@" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5-Hour Usage Reset: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5小时用量重置时间：%@"
+          }
+        }
       }
     },
     "menu.five_hour_usage" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "5-Hour Usage: %@" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "5小时用量：%@" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5-Hour Usage: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5小时用量：%@"
+          }
+        }
       }
     },
     "menu.quit" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit Kimi Balance" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出 Kimi Balance" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit Kimi Balance"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出 Kimi Balance"
+          }
+        }
       }
     },
     "menu.refresh_now" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh Now" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "立即刷新" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh Now"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即刷新"
+          }
+        }
       }
     },
     "menu.settings" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings…" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设置…" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置…"
+          }
+        }
       }
     },
     "menu.show_main_window" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show Main Window" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示主窗口" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Main Window"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示主窗口"
+          }
+        }
       }
     },
     "menu.total_reset" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Usage Reset: %@" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "总使用量重置时间：%@" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Usage Reset: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总使用量重置时间：%@"
+          }
+        }
       }
     },
     "menu.total_usage" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Total Usage: %@" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "总使用量：%@" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Usage: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总使用量：%@"
+          }
+        }
       }
     },
     "menu.update_available" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Update Available…" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "有可用更新…" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update Available…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有可用更新…"
+          }
+        }
       }
     },
     "settings.about" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关于" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于"
+          }
+        }
       }
     },
     "settings.about_description" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Usage data is read from your Kimi subscription page. Login cookies are stored only in the app's local WebView data store." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用量数据读取自你的 Kimi 订阅页面。登录 Cookie 仅保存在应用本地的 WebView 数据存储中。" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usage data is read from your Kimi subscription page. Login cookies are stored only in the app's local WebView data store."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用量数据读取自你的 Kimi 订阅页面。登录 Cookie 仅保存在应用本地的 WebView 数据存储中。"
+          }
+        }
       }
     },
     "settings.application" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Application" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Application"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用"
+          }
+        }
       }
     },
     "settings.build" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Build" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "构建号" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Build"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构建号"
+          }
+        }
       }
     },
     "settings.content" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Content" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示内容" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示内容"
+          }
+        }
       }
     },
     "settings.content_footer" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Drag items to change their order in the menu bar." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "拖动项目可调整它们在菜单栏中的排列顺序。" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag items to change their order in the menu bar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拖动项目可调整它们在菜单栏中的排列顺序。"
+          }
+        }
       }
     },
     "settings.data_source" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Data Source" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数据来源" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data Source"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据来源"
+          }
+        }
       }
     },
     "settings.general" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "General" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通用" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "General"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通用"
+          }
+        }
       }
     },
     "settings.how_to_use" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "How to Use" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使用指南" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to Use"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用指南"
+          }
+        }
       }
     },
     "settings.interval_minutes" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d minutes" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%d 分钟" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d minutes"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d 分钟"
+          }
+        }
       }
     },
     "settings.interval_minutes_seconds" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d min %d sec" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%d 分 %d 秒" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d min %d sec"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d 分 %d 秒"
+          }
+        }
       }
     },
     "settings.interval_one_minute" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "1 minute" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "1 分钟" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 minute"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 分钟"
+          }
+        }
       }
     },
     "settings.interval_seconds" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d seconds" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%d 秒" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d seconds"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d 秒"
+          }
+        }
       }
     },
     "settings.language" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "语言" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "语言"
+          }
+        }
       }
     },
     "settings.launch_at_login" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch at Login" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "登录时启动" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Launch at Login"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录时启动"
+          }
+        }
       }
     },
     "settings.launch_description" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Automatically open Kimi Balance when you log in to your Mac." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "登录 Mac 时自动打开 Kimi Balance。" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically open Kimi Balance when you log in to your Mac."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录 Mac 时自动打开 Kimi Balance。"
+          }
+        }
       }
     },
     "settings.menu_bar" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Menu Bar" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "菜单栏" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menu Bar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "菜单栏"
+          }
+        }
       }
     },
     "settings.minutes_short" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "30 min" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "30 分钟" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 min"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 分钟"
+          }
+        }
       }
     },
     "settings.refresh_footer" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "How often Kimi Balance refreshes your usage in the background." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设置 Kimi Balance 在后台刷新用量的频率。" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How often Kimi Balance refreshes your usage in the background."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置 Kimi Balance 在后台刷新用量的频率。"
+          }
+        }
       }
     },
     "settings.refresh_usage" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh Usage" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "刷新用量" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh Usage"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刷新用量"
+          }
+        }
       }
     },
     "settings.seconds_short" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "30 sec" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "30 秒" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 sec"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 秒"
+          }
+        }
       }
     },
     "settings.step_1_description" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "The app appears in the macOS menu bar. It does not open the main window automatically." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用会显示在 macOS 菜单栏中，不会自动打开主窗口。" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app appears in the macOS menu bar. It does not open the main window automatically."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用会显示在 macOS 菜单栏中，不会自动打开主窗口。"
+          }
+        }
       }
     },
     "settings.step_1_title" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch Kimi Balance" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "启动 Kimi Balance" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Launch Kimi Balance"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启动 Kimi Balance"
+          }
+        }
       }
     },
     "settings.step_2_description" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open the menu bar menu and choose “Show Main Window”, then sign in on the kimi.com page." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开菜单栏菜单并选择“显示主窗口”，然后在 kimi.com 页面中登录。" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the menu bar menu and choose “Show Main Window”, then sign in on the kimi.com page."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开菜单栏菜单并选择“显示主窗口”，然后在 kimi.com 页面中登录。"
+          }
+        }
       }
     },
     "settings.step_2_title" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign in to Kimi" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "登录 Kimi" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to Kimi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录 Kimi"
+          }
+        }
       }
     },
     "settings.step_3_description" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "After signing in, choose “Login Completed, View Usage”. Your login is reused while its cookie remains valid." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "登录后选择“登录完成，查看用量”。只要 Cookie 仍然有效，应用就会复用登录状态。" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After signing in, choose “Login Completed, View Usage”. Your login is reused while its cookie remains valid."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录后选择“登录完成，查看用量”。只要 Cookie 仍然有效，应用就会复用登录状态。"
+          }
+        }
       }
     },
     "settings.step_3_title" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Load your usage" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "加载用量" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load your usage"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加载用量"
+          }
+        }
       }
     },
     "settings.step_4_description" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "The menu bar shows total and 5-hour usage. Open its menu to see reset times and more details." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "菜单栏会显示总使用量和 5 小时用量。打开菜单可查看重置时间及更多详情。" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The menu bar shows total and 5-hour usage. Open its menu to see reset times and more details."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "菜单栏会显示总使用量和 5 小时用量。打开菜单可查看重置时间及更多详情。"
+          }
+        }
       }
     },
     "settings.step_4_title" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check your subscription" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "查看订阅" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your subscription"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看订阅"
+          }
+        }
       }
     },
     "settings.step_5_description" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Usage refreshes every 60 seconds by default. Choose “Refresh Now” for an immediate update. Closing the main window does not stop background refreshes." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用量默认每 60 秒刷新一次。选择“立即刷新”可立即更新。关闭主窗口不会停止后台刷新。" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usage refreshes every 60 seconds by default. Choose “Refresh Now” for an immediate update. Closing the main window does not stop background refreshes."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用量默认每 60 秒刷新一次。选择“立即刷新”可立即更新。关闭主窗口不会停止后台刷新。"
+          }
+        }
       }
     },
     "settings.step_5_title" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh when needed" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "按需刷新" } }
-      }
-    },
-    "settings.version" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "版本" } }
-      }
-    },
-    "settings.window_title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Kimi Balance Settings" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Kimi Balance 设置" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh when needed"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按需刷新"
+          }
+        }
       }
     },
     "settings.subscription" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Kimi Subscription" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Kimi 订阅" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kimi Subscription"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kimi 订阅"
+          }
+        }
+      }
+    },
+    "settings.version" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本"
+          }
+        }
+      }
+    },
+    "settings.window_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kimi Balance Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kimi Balance 设置"
+          }
+        }
       }
     },
     "status.avatar" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Avatar" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "头像" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "头像"
+          }
+        }
       }
     },
     "status.circular_progress" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Circular Progress" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "圆形进度" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Circular Progress"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "圆形进度"
+          }
+        }
       }
     },
     "status.sign_in_required" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign In Required" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请完成登录" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In Required"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请完成登录"
+          }
+        }
       }
     },
     "status.text" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Text" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "文字" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文字"
+          }
+        }
       }
     },
     "status.usage_summary" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Total %@ · 5-Hour %@" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "总%@ 5小时%@" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total %@ · 5-Hour %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总%@ 5小时%@"
+          }
+        }
       }
     }
   },
