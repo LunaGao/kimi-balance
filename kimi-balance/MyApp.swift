@@ -22,6 +22,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, SPUStandardUserDriverD
             name: NSWindow.willCloseNotification,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(languageDidChange),
+            name: UserDefaults.didChangeNotification,
+            object: nil
+        )
         statusBarController = StatusBarController(
             model: subscriptionModel,
             updaterController: updaterController,
@@ -65,6 +71,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, SPUStandardUserDriverD
         }
     }
 
+    @objc private func languageDidChange() {
+        mainWindow?.title = localized("app.title")
+    }
+
     private func showMainWindow() {
         NSApp.setActivationPolicy(.regular)
         if let mainWindow {
@@ -80,7 +90,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, SPUStandardUserDriverD
                 backing: .buffered,
                 defer: false
             )
-            window.title = "Kimi 订阅用量"
+            window.title = localized("app.title")
             window.contentView = NSHostingView(rootView: ContentView(model: subscriptionModel))
             window.isReleasedWhenClosed = false
             window.center()

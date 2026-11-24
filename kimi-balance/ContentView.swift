@@ -153,7 +153,7 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
                             const index = lines.findIndex(line => pattern.test(line));
                             if (index < 0) return [];
                             const nextSection = lines.slice(index + 1).findIndex(line =>
-                                /5\\s*小时|7\\s*天|总使用量/.test(line)
+                                /5\\s*(?:小时|hours?)|7\\s*(?:天|days?)|总使用量|total usage/i.test(line)
                             );
                             const end = nextSection < 0
                                 ? Math.min(lines.length, index + 12)
@@ -170,8 +170,8 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
                             return section.find(line => /重置|重设|Reset/i.test(line)) || null;
                         }
 
-                        const totalSection = sectionFor(/总使用量/);
-                        const fiveHourSection = sectionFor(/5\\s*小时/);
+                        const totalSection = sectionFor(/总使用量|total usage/i);
+                        const fiveHourSection = sectionFor(/5\\s*(?:小时|hours?)/i);
                         return {
                             total: usageIn(totalSection),
                             totalReset: resetIn(totalSection),
@@ -252,6 +252,7 @@ struct LoginWebView: NSViewRepresentable {
 
 struct ContentView: View {
     @ObservedObject var model: SubscriptionModel
+    @AppStorage(AppLanguage.storageKey) private var appLanguage = AppLanguage.preferred.rawValue
 
     var body: some View {
         ZStack {
@@ -261,8 +262,8 @@ struct ContentView: View {
                 VStack {
                     Spacer()
                     HStack(spacing: 16) {
-                        Text("请在页面中登录 Kimi")
-                        Button("登录完成，查看用量", action: model.loginCompleted)
+                        Text(localized("main.sign_in_prompt"))
+                        Button(localized("main.login_completed"), action: model.loginCompleted)
                     }
                     .padding(16)
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
@@ -273,11 +274,11 @@ struct ContentView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 44))
                         .foregroundStyle(.green)
-                    Text("订阅用量正在后台自动更新")
+                    Text(localized("main.auto_refresh"))
                         .font(.title2)
                     HStack(spacing: 40) {
                         VStack {
-                            Text("总使用量")
+                            Text(localized("main.total_usage"))
                                 .foregroundStyle(.secondary)
                             Text(model.totalUsage)
                                 .font(.title)
@@ -285,7 +286,7 @@ struct ContentView: View {
                                 .foregroundStyle(.secondary)
                         }
                         VStack {
-                            Text("5小时用量")
+                            Text(localized("main.five_hour_usage"))
                                 .foregroundStyle(.secondary)
                             Text(model.fiveHourUsage)
                                 .font(.title)
@@ -293,7 +294,7 @@ struct ContentView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    Button("立即刷新", action: model.refresh)
+                    Button(localized("main.refresh_now"), action: model.refresh)
                 }
             }
 
@@ -310,7 +311,7 @@ struct ContentView: View {
                     Text(errorMessage)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: 420)
-                    Button("重试", action: model.refresh)
+                    Button(localized("common.retry"), action: model.refresh)
                         .keyboardShortcut("r")
                 }
                 .padding(32)
@@ -318,6 +319,7 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 900, minHeight: 620)
+        .environment(\.locale, Locale(identifier: appLanguage))
     }
 }
 

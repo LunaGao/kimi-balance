@@ -57,9 +57,9 @@ enum StatusBarContentItem: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .avatar: "Avatar"
-        case .text: "Text"
-        case .circularProgress: "Circular Progress"
+        case .avatar: localized("status.avatar")
+        case .text: localized("status.text")
+        case .circularProgress: localized("status.circular_progress")
         }
     }
 
@@ -119,6 +119,7 @@ private enum LegacyStatusBarDisplayMode: String {
 }
 
 struct SettingsView: View {
+    @AppStorage(AppLanguage.storageKey) private var appLanguage = AppLanguage.preferred.rawValue
     @AppStorage(LaunchAtLoginSettings.isEnabledKey) private var launchAtLogin = true
     @AppStorage(UsageRefreshSettings.intervalKey) private var usageRefreshInterval = UsageRefreshSettings.defaultInterval
     @AppStorage(StatusBarDisplaySettings.showsAvatarKey) private var showsAvatar = true
@@ -136,21 +137,25 @@ struct SettingsView: View {
     private let subscriptionURL = URL(string: "https://www.kimi.com/settings/subscription")!
 
     private var version: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+            ?? localized("common.unknown")
     }
 
     private var build: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+            ?? localized("common.unknown")
     }
 
     private var formattedRefreshInterval: String {
         let seconds = Int(usageRefreshInterval)
-        if seconds < 60 { return "\(seconds) seconds" }
+        if seconds < 60 { return localized("settings.interval_seconds", seconds) }
         if seconds % 60 == 0 {
             let minutes = seconds / 60
-            return "\(minutes) \(minutes == 1 ? "minute" : "minutes")"
+            return minutes == 1
+                ? localized("settings.interval_one_minute")
+                : localized("settings.interval_minutes", minutes)
         }
-        return "\(seconds / 60) min \(seconds % 60) sec"
+        return localized("settings.interval_minutes_seconds", seconds / 60, seconds % 60)
     }
 
     private func visibilityBinding(for item: StatusBarContentItem) -> Binding<Bool> {
@@ -181,7 +186,13 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             Form {
-                Toggle("Launch at Login", isOn: Binding(
+                Picker(localized("settings.language"), selection: $appLanguage) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(language.displayName).tag(language.rawValue)
+                    }
+                }
+
+                Toggle(localized("settings.launch_at_login"), isOn: Binding(
                     get: { launchAtLogin },
                     set: { isEnabled in
                         Task {
@@ -198,27 +209,27 @@ struct SettingsView: View {
                     }
                 ))
                 .disabled(isUpdatingLaunchAtLogin)
-                Text("Automatically open Kimi Balance when you log in to your Mac.")
+                Text(localized("settings.launch_description"))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
                 Section {
-                    LabeledContent("Refresh Usage", value: formattedRefreshInterval)
+                    LabeledContent(localized("settings.refresh_usage"), value: formattedRefreshInterval)
                     HStack(spacing: 8) {
-                        Text("30 sec")
+                        Text(localized("settings.seconds_short"))
                         RefreshUsageSlider(value: $usageRefreshInterval)
                             .frame(height: 22)
-                        Text("30 min")
+                        Text(localized("settings.minutes_short"))
                     }
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                 } footer: {
-                    Text("How often Kimi Balance refreshes your usage in the background.")
+                    Text(localized("settings.refresh_footer"))
                 }
             }
             .formStyle(.grouped)
             .tabItem {
-                Label("General", systemImage: "gear")
+                Label(localized("settings.general"), systemImage: "gear")
             }
 
             Form {
@@ -245,74 +256,75 @@ struct SettingsView: View {
                     .scrollDisabled(true)
                     .frame(height: 150)
                 } header: {
-                    Text("Content")
+                    Text(localized("settings.content"))
                 } footer: {
-                    Text("Drag items to change their order in the menu bar.")
+                    Text(localized("settings.content_footer"))
                 }
             }
             .formStyle(.grouped)
             .tabItem {
-                Label("Menu Bar", systemImage: "menubar.rectangle")
+                Label(localized("settings.menu_bar"), systemImage: "menubar.rectangle")
             }
 
             Form {
                 InstructionStep(
                     number: 1,
-                    title: "Launch Kimi Balance",
-                    description: "The app appears in the macOS menu bar. It does not open the main window automatically."
+                    title: localized("settings.step_1_title"),
+                    description: localized("settings.step_1_description")
                 )
                 InstructionStep(
                     number: 2,
-                    title: "Sign in to Kimi",
-                    description: "Open the menu bar menu and choose “Show Main Window” (显示主窗口), then sign in on the kimi.com page."
+                    title: localized("settings.step_2_title"),
+                    description: localized("settings.step_2_description")
                 )
                 InstructionStep(
                     number: 3,
-                    title: "Load your usage",
-                    description: "After signing in, choose “Login Completed” (登录完成，查看用量). Your login is reused while its cookie remains valid."
+                    title: localized("settings.step_3_title"),
+                    description: localized("settings.step_3_description")
                 )
                 InstructionStep(
                     number: 4,
-                    title: "Check your subscription",
-                    description: "The menu bar shows total and 5-hour usage. Open its menu to see reset times and more details."
+                    title: localized("settings.step_4_title"),
+                    description: localized("settings.step_4_description")
                 )
                 InstructionStep(
                     number: 5,
-                    title: "Refresh when needed",
-                    description: "Usage refreshes every 60 seconds. Choose “Refresh Now” (立即刷新) for an immediate update. Closing the main window does not stop background refreshes."
+                    title: localized("settings.step_5_title"),
+                    description: localized("settings.step_5_description")
                 )
             }
             .formStyle(.grouped)
             .tabItem {
-                Label("How to Use", systemImage: "questionmark.circle")
+                Label(localized("settings.how_to_use"), systemImage: "questionmark.circle")
             }
 
             Form {
-                LabeledContent("Application", value: "Kimi Balance")
-                LabeledContent("Version", value: version)
-                LabeledContent("Build", value: build)
+                LabeledContent(localized("settings.application"), value: "Kimi Balance")
+                LabeledContent(localized("settings.version"), value: version)
+                LabeledContent(localized("settings.build"), value: build)
                 LabeledContent("GitHub") {
                     Link("LunaGao/kimi-balance", destination: repositoryURL)
                 }
-                LabeledContent("Data Source") {
-                    Link("Kimi Subscription", destination: subscriptionURL)
+                LabeledContent(localized("settings.data_source")) {
+                    Link(localized("settings.subscription"), destination: subscriptionURL)
                 }
-                Text("Usage data is read from your Kimi subscription page. Login cookies are stored only in the app's local WebView data store.")
+                Text(localized("settings.about_description"))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .formStyle(.grouped)
             .tabItem {
-                Label("About", systemImage: "info.circle")
+                Label(localized("settings.about"), systemImage: "info.circle")
             }
         }
         .frame(width: 600)
-        .alert("Launch at Login", isPresented: Binding(
+        .environment(\.locale, Locale(identifier: appLanguage))
+        .alert(localized("settings.launch_at_login"), isPresented: Binding(
             get: { launchAtLoginError != nil },
             set: { if !$0 { launchAtLoginError = nil } }
         )) {
-            Button("OK") { launchAtLoginError = nil }
+            Button(localized("common.ok")) { launchAtLoginError = nil }
         } message: {
             Text(launchAtLoginError ?? "")
         }

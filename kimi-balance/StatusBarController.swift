@@ -15,7 +15,12 @@ final class StatusBarController: NSObject {
     private var totalResetItem: NSMenuItem!
     private var fiveHourUsageItem: NSMenuItem!
     private var fiveHourResetItem: NSMenuItem!
+    private var refreshItem: NSMenuItem!
+    private var mainWindowItem: NSMenuItem!
+    private var settingsItem: NSMenuItem!
     private var updateItem: NSMenuItem!
+    private var quitItem: NSMenuItem!
+    private var isUpdateAvailable = false
     private var avatarLoadTask: Task<Void, Never>?
     private var loadedAvatarURL: URL?
     private var avatarImage: NSImage?
@@ -51,7 +56,7 @@ final class StatusBarController: NSObject {
     private func setupStatusItem() {
         guard let button = statusItem.button else { return }
         button.font = .monospacedDigitSystemFont(ofSize: 12, weight: .regular)
-        button.toolTip = "Kimi 订阅用量"
+        button.toolTip = localized("app.title")
 
         contentStackView.orientation = .horizontal
         contentStackView.alignment = .centerY
@@ -78,21 +83,33 @@ final class StatusBarController: NSObject {
         menu.addItem(fiveHourUsageItem)
         menu.addItem(fiveHourResetItem)
 
-        let refreshItem = NSMenuItem(title: "立即刷新", action: #selector(refresh), keyEquivalent: "r")
+        refreshItem = NSMenuItem(
+            title: localized("menu.refresh_now"),
+            action: #selector(refresh),
+            keyEquivalent: "r"
+        )
         refreshItem.target = self
         menu.addItem(refreshItem)
         menu.addItem(.separator())
 
-        let mainWindowItem = NSMenuItem(title: "显示主窗口", action: #selector(openMainWindow), keyEquivalent: "o")
+        mainWindowItem = NSMenuItem(
+            title: localized("menu.show_main_window"),
+            action: #selector(openMainWindow),
+            keyEquivalent: "o"
+        )
         mainWindowItem.target = self
         menu.addItem(mainWindowItem)
 
-        let settingsItem = NSMenuItem(title: "设置…", action: #selector(showSettings), keyEquivalent: ",")
+        settingsItem = NSMenuItem(
+            title: localized("menu.settings"),
+            action: #selector(showSettings),
+            keyEquivalent: ","
+        )
         settingsItem.target = self
         menu.addItem(settingsItem)
 
         updateItem = NSMenuItem(
-            title: "检查更新…",
+            title: localized("menu.check_updates"),
             action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
             keyEquivalent: ""
         )
@@ -100,7 +117,11 @@ final class StatusBarController: NSObject {
         menu.addItem(updateItem)
         menu.addItem(.separator())
 
-        let quitItem = NSMenuItem(title: "退出 Kimi Balance", action: #selector(quit), keyEquivalent: "q")
+        quitItem = NSMenuItem(
+            title: localized("menu.quit"),
+            action: #selector(quit),
+            keyEquivalent: "q"
+        )
         quitItem.target = self
         menu.addItem(quitItem)
         statusItem.menu = menu
@@ -129,7 +150,10 @@ final class StatusBarController: NSObject {
     }
 
     private var placeholderAvatar: NSImage? {
-        NSImage(systemSymbolName: "person.circle.fill", accessibilityDescription: "用户头像")
+        NSImage(
+            systemSymbolName: "person.circle.fill",
+            accessibilityDescription: localized("accessibility.avatar")
+        )
     }
 
     private func updateContent() {
@@ -150,10 +174,22 @@ final class StatusBarController: NSObject {
             avatarImage = nil
         }
         updateStatusContent()
-        totalUsageItem.title = "总使用量：\(model.totalUsage)"
-        totalResetItem.title = "总使用量重置时间：\(model.totalResetTime)"
-        fiveHourUsageItem.title = "5小时用量：\(model.fiveHourUsage)"
-        fiveHourResetItem.title = "5小时用量重置时间：\(model.fiveHourResetTime)"
+        updateLocalizedContent()
+    }
+
+    private func updateLocalizedContent() {
+        statusItem.button?.toolTip = localized("app.title")
+        totalUsageItem.title = localized("menu.total_usage", model.totalUsage)
+        totalResetItem.title = localized("menu.total_reset", model.totalResetTime)
+        fiveHourUsageItem.title = localized("menu.five_hour_usage", model.fiveHourUsage)
+        fiveHourResetItem.title = localized("menu.five_hour_reset", model.fiveHourResetTime)
+        refreshItem.title = localized("menu.refresh_now")
+        mainWindowItem.title = localized("menu.show_main_window")
+        settingsItem.title = localized("menu.settings")
+        updateItem.title = localized(isUpdateAvailable ? "menu.update_available" : "menu.check_updates")
+        quitItem.title = localized("menu.quit")
+        avatarImage?.accessibilityDescription = localized("accessibility.avatar")
+        settingsWindow?.title = localized("settings.window_title")
     }
 
     private func updateStatusContent() {
@@ -171,8 +207,8 @@ final class StatusBarController: NSObject {
             case .text:
                 guard settings.text else { continue }
                 let text = model.isLoginRequired
-                    ? "请完成登录"
-                    : "总\(model.totalUsage) 5小时\(model.fiveHourUsage)"
+                    ? localized("status.sign_in_required")
+                    : localized("status.usage_summary", model.totalUsage, model.fiveHourUsage)
                 let textField = NSTextField(labelWithString: text)
                 textField.font = statusItem.button?.font
                 textField.textColor = statusBarContentColor
@@ -228,7 +264,11 @@ final class StatusBarController: NSObject {
         )
         image.unlockFocus()
         image.isTemplate = isTemplate
-        image.accessibilityDescription = "总使用量：\(model.totalUsage)，5小时用量：\(model.fiveHourUsage)"
+        image.accessibilityDescription = localized(
+            "accessibility.usage",
+            model.totalUsage,
+            model.fiveHourUsage
+        )
         return image
     }
 
@@ -278,12 +318,13 @@ final class StatusBarController: NSObject {
         source.draw(in: drawRect, from: .zero, operation: .sourceOver, fraction: 1)
         image.unlockFocus()
         image.isTemplate = false
-        image.accessibilityDescription = "用户头像"
+        image.accessibilityDescription = localized("accessibility.avatar")
         return image
     }
 
     func setUpdateAvailable(_ available: Bool) {
-        updateItem.title = available ? "有可用更新…" : "检查更新…"
+        isUpdateAvailable = available
+        updateItem.title = localized(available ? "menu.update_available" : "menu.check_updates")
     }
 
     @objc private func refresh() {
@@ -297,7 +338,11 @@ final class StatusBarController: NSObject {
     @objc private func showSettings() {
         NSApp.setActivationPolicy(.regular)
         let settingsWindowTitles: Set<String> = [
-            "General", "Menu Bar", "How to Use", "About", "Kimi Balance Settings"
+            localized("settings.general"),
+            localized("settings.menu_bar"),
+            localized("settings.how_to_use"),
+            localized("settings.about"),
+            localized("settings.window_title")
         ]
         if let settingsWindow = settingsWindow ?? NSApp.windows.first(where: {
             settingsWindowTitles.contains($0.title)
@@ -315,7 +360,7 @@ final class StatusBarController: NSObject {
                 backing: .buffered,
                 defer: false
             )
-            window.title = "Kimi Balance Settings"
+            window.title = localized("settings.window_title")
             window.contentView = NSHostingView(rootView: SettingsView())
             window.contentMinSize = NSSize(width: 600, height: 500)
             window.isReleasedWhenClosed = false
