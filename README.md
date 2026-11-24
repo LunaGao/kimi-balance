@@ -2,7 +2,7 @@
 
 一款原生 macOS 菜单栏应用，用于展示 Kimi 订阅的总使用量和 5 小时用量，并在后台自动刷新数据。
 
-- 当前版本：1.2 (3)
+- 当前版本：1.3 (4)
 - GitHub：[LunaGao/kimi-balance](https://github.com/LunaGao/kimi-balance)
 - 下载：[Releases](https://github.com/LunaGao/kimi-balance/releases)
 
