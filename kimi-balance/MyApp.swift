@@ -3,18 +3,25 @@ import Sparkle
 import SwiftUI
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, SPUStandardUserDriverDelegate {
     private let subscriptionModel = SubscriptionModel()
-    private let updaterController = SPUStandardUpdaterController(
+    private lazy var updaterController = SPUStandardUpdaterController(
         startingUpdater: true,
         updaterDelegate: nil,
-        userDriverDelegate: nil
+        userDriverDelegate: self
     )
     private var statusBarController: StatusBarController?
     private var mainWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        LaunchAtLoginSettings.applyPreference()
         NSApp.setActivationPolicy(.accessory)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(windowWillClose),
+            name: NSWindow.willCloseNotification,
+            object: nil
+        )
         statusBarController = StatusBarController(
             model: subscriptionModel,
             updaterController: updaterController,
@@ -26,8 +33,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         false
     }
 
-    func windowWillClose(_ notification: Notification) {
-        NSApp.setActivationPolicy(.accessory)
+    var supportsGentleScheduledUpdateReminders: Bool {
+        true
+    }
+
+    func standardUserDriverShouldHandleShowingScheduledUpdate(
+        _ update: SUAppcastItem,
+        andInImmediateFocus immediateFocus: Bool
+    ) -> Bool {
+        immediateFocus
+    }
+
+    func standardUserDriverWillHandleShowingUpdate(
+        _ handleShowingUpdate: Bool,
+        forUpdate update: SUAppcastItem,
+        state: SPUUserUpdateState
+    ) {
+        if !state.userInitiated {
+            statusBarController?.setUpdateAvailable(true)
+        }
+    }
+
+    func standardUserDriverWillFinishUpdateSession() {
+        statusBarController?.setUpdateAvailable(false)
+    }
+
+    @objc private func windowWillClose(_ notification: Notification) {
+        DispatchQueue.main.async {
+            let hasVisibleWindow = NSApp.windows.contains { $0.isVisible && $0.canBecomeKey }
+            NSApp.setActivationPolicy(hasVisibleWindow ? .regular : .accessory)
+        }
     }
 
     private func showMainWindow() {
@@ -37,6 +72,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 mainWindow.deminiaturize(nil)
             }
             mainWindow.makeKeyAndOrderFront(nil)
+            mainWindow.orderFrontRegardless()
         } else {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 900, height: 620),
@@ -47,12 +83,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             window.title = "Kimi 订阅用量"
             window.contentView = NSHostingView(rootView: ContentView(model: subscriptionModel))
             window.isReleasedWhenClosed = false
-            window.delegate = self
             window.center()
             window.makeKeyAndOrderFront(nil)
             mainWindow = window
         }
-        NSApp.activate(ignoringOtherApps: true)
+        DispatchQueue.main.async {
+            NSApp.activate()
+        }
     }
 }
 

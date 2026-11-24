@@ -17,6 +17,8 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
     private let subscriptionURL = URL(string: "https://www.kimi.com/settings/subscription")!
     private var backgroundWebView: WKWebView!
     private var refreshCancellable: AnyCancellable?
+    private var refreshSettingsCancellable: AnyCancellable?
+    private var currentRefreshInterval = UsageRefreshSettings.defaultInterval
     private var loadGeneration = 0
 
     override init() {
@@ -29,12 +31,30 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
             configuration: configuration
         )
         backgroundWebView.navigationDelegate = self
-        refreshCancellable = Timer.publish(every: 60, on: .main, in: .common)
+        currentRefreshInterval = UsageRefreshSettings.interval
+        startRefreshTimer()
+        refreshSettingsCancellable = NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.refreshIntervalDidChange()
+            }
+        refresh()
+    }
+
+    private func startRefreshTimer() {
+        refreshCancellable?.cancel()
+        refreshCancellable = Timer.publish(every: currentRefreshInterval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 self?.refresh()
             }
-        refresh()
+    }
+
+    private func refreshIntervalDidChange() {
+        let interval = UsageRefreshSettings.interval
+        guard interval != currentRefreshInterval else { return }
+        currentRefreshInterval = interval
+        startRefreshTimer()
     }
 
     func loginCompleted() {

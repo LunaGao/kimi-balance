@@ -9,11 +9,13 @@ final class StatusBarController: NSObject {
     private let updaterController: SPUStandardUpdaterController
     private let openMainWindowAction: () -> Void
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    private let contentStackView = NSStackView()
     private var cancellables = Set<AnyCancellable>()
     private var totalUsageItem: NSMenuItem!
     private var totalResetItem: NSMenuItem!
     private var fiveHourUsageItem: NSMenuItem!
     private var fiveHourResetItem: NSMenuItem!
+    private var updateItem: NSMenuItem!
     private var avatarLoadTask: Task<Void, Never>?
     private var loadedAvatarURL: URL?
     private var avatarImage: NSImage?
@@ -48,9 +50,21 @@ final class StatusBarController: NSObject {
 
     private func setupStatusItem() {
         guard let button = statusItem.button else { return }
-        button.imagePosition = .imageLeading
         button.font = .monospacedDigitSystemFont(ofSize: 12, weight: .regular)
         button.toolTip = "Kimi 订阅用量"
+
+        contentStackView.orientation = .horizontal
+        contentStackView.alignment = .centerY
+        contentStackView.distribution = .gravityAreas
+        contentStackView.spacing = 4
+        contentStackView.translatesAutoresizingMaskIntoConstraints = false
+        button.addSubview(contentStackView)
+        NSLayoutConstraint.activate([
+            contentStackView.centerXAnchor.constraint(equalTo: button.centerXAnchor),
+            contentStackView.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+            contentStackView.leadingAnchor.constraint(greaterThanOrEqualTo: button.leadingAnchor, constant: 4),
+            contentStackView.trailingAnchor.constraint(lessThanOrEqualTo: button.trailingAnchor, constant: -4)
+        ])
     }
 
     private func setupMenu() {
@@ -77,7 +91,7 @@ final class StatusBarController: NSObject {
         settingsItem.target = self
         menu.addItem(settingsItem)
 
-        let updateItem = NSMenuItem(
+        updateItem = NSMenuItem(
             title: "检查更新…",
             action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
             keyEquivalent: ""
@@ -92,7 +106,12 @@ final class StatusBarController: NSObject {
         statusItem.menu = menu
     }
 
-    private var displaySettings: (avatar: Bool, text: Bool, circularProgress: Bool) {
+    private var displaySettings: (
+        avatar: Bool,
+        text: Bool,
+        circularProgress: Bool,
+        contentOrder: [StatusBarContentItem]
+    ) {
         let defaults = UserDefaults.standard
         func value(forKey key: String, default defaultValue: Bool) -> Bool {
             defaults.object(forKey: key) == nil ? defaultValue : defaults.bool(forKey: key)
@@ -101,11 +120,12 @@ final class StatusBarController: NSObject {
         let settings = (
             avatar: value(forKey: StatusBarDisplaySettings.showsAvatarKey, default: true),
             text: value(forKey: StatusBarDisplaySettings.showsTextKey, default: true),
-            circularProgress: value(forKey: StatusBarDisplaySettings.showsCircularProgressKey, default: false)
+            circularProgress: value(forKey: StatusBarDisplaySettings.showsCircularProgressKey, default: false),
+            contentOrder: StatusBarDisplaySettings.contentOrder
         )
         return settings.avatar || settings.text || settings.circularProgress
             ? settings
-            : (avatar: false, text: true, circularProgress: false)
+            : (avatar: false, text: true, circularProgress: false, contentOrder: settings.contentOrder)
     }
 
     private var placeholderAvatar: NSImage? {
@@ -114,9 +134,6 @@ final class StatusBarController: NSObject {
 
     private func updateContent() {
         let settings = displaySettings
-        statusItem.button?.title = settings.text
-            ? model.isLoginRequired ? "请完成登录" : " 总\(model.totalUsage) 5小时\(model.fiveHourUsage)"
-            : ""
 
         if model.isLoginRequired {
             avatarLoadTask?.cancel()
@@ -132,27 +149,43 @@ final class StatusBarController: NSObject {
             loadedAvatarURL = nil
             avatarImage = nil
         }
-        updateStatusImage()
+        updateStatusContent()
         totalUsageItem.title = "总使用量：\(model.totalUsage)"
         totalResetItem.title = "总使用量重置时间：\(model.totalResetTime)"
         fiveHourUsageItem.title = "5小时用量：\(model.fiveHourUsage)"
         fiveHourResetItem.title = "5小时用量重置时间：\(model.fiveHourResetTime)"
     }
 
-    private func updateStatusImage() {
+    private func updateStatusContent() {
         let settings = displaySettings
-        let avatar = settings.avatar ? avatarImage : nil
-        guard settings.circularProgress else {
-            statusItem.button?.image = avatar
-            return
+        for view in contentStackView.arrangedSubviews {
+            contentStackView.removeArrangedSubview(view)
+            view.removeFromSuperview()
         }
 
-        let progress = circularUsageImage(isTemplate: avatar == nil)
-        statusItem.button?.image = if let avatar {
-            combinedStatusImage(avatar: avatar, progress: progress)
-        } else {
-            progress
+        for item in settings.contentOrder {
+            switch item {
+            case .avatar:
+                guard settings.avatar, let avatarImage else { continue }
+                contentStackView.addArrangedSubview(NSImageView(image: avatarImage))
+            case .text:
+                guard settings.text else { continue }
+                let text = model.isLoginRequired
+                    ? "请完成登录"
+                    : "总\(model.totalUsage) 5小时\(model.fiveHourUsage)"
+                let textField = NSTextField(labelWithString: text)
+                textField.font = statusItem.button?.font
+                textField.textColor = statusBarContentColor
+                contentStackView.addArrangedSubview(textField)
+            case .circularProgress:
+                guard settings.circularProgress else { continue }
+                let isTemplate = !settings.avatar || avatarImage == nil
+                contentStackView.addArrangedSubview(NSImageView(
+                    image: circularUsageImage(isTemplate: isTemplate)
+                ))
+            }
         }
+        statusItem.length = max(20, ceil(contentStackView.fittingSize.width + 8))
     }
 
     private func loadAvatar() {
@@ -171,38 +204,12 @@ final class StatusBarController: NSObject {
     private func applyAvatar(_ image: NSImage, for url: URL) {
         guard !model.isLoginRequired, displaySettings.avatar, model.avatarURL == url else { return }
         avatarImage = circularAvatar(from: image)
-        updateStatusImage()
+        updateStatusContent()
     }
 
     private var statusBarContentColor: NSColor {
         guard let appearance = statusItem.button?.effectiveAppearance else { return .labelColor }
         return appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? .white : .black
-    }
-
-    private func combinedStatusImage(avatar: NSImage, progress: NSImage) -> NSImage {
-        let spacing: CGFloat = 4
-        let size = NSSize(
-            width: avatar.size.width + spacing + progress.size.width,
-            height: max(avatar.size.height, progress.size.height)
-        )
-        let image = NSImage(size: size)
-        image.lockFocus()
-        avatar.draw(in: NSRect(
-            x: 0,
-            y: (size.height - avatar.size.height) / 2,
-            width: avatar.size.width,
-            height: avatar.size.height
-        ))
-        progress.draw(in: NSRect(
-            x: avatar.size.width + spacing,
-            y: (size.height - progress.size.height) / 2,
-            width: progress.size.width,
-            height: progress.size.height
-        ))
-        image.unlockFocus()
-        image.isTemplate = false
-        image.accessibilityDescription = "用户头像，\(progress.accessibilityDescription ?? "用量进度")"
-        return image
     }
 
     private func circularUsageImage(isTemplate: Bool = true) -> NSImage {
@@ -275,6 +282,10 @@ final class StatusBarController: NSObject {
         return image
     }
 
+    func setUpdateAvailable(_ available: Bool) {
+        updateItem.title = available ? "有可用更新…" : "检查更新…"
+    }
+
     @objc private func refresh() {
         model.refresh()
     }
@@ -284,8 +295,19 @@ final class StatusBarController: NSObject {
     }
 
     @objc private func showSettings() {
-        if let settingsWindow {
+        NSApp.setActivationPolicy(.regular)
+        let settingsWindowTitles: Set<String> = [
+            "General", "Menu Bar", "How to Use", "About", "Kimi Balance Settings"
+        ]
+        if let settingsWindow = settingsWindow ?? NSApp.windows.first(where: {
+            settingsWindowTitles.contains($0.title)
+        }) {
+            self.settingsWindow = settingsWindow
+            if settingsWindow.isMiniaturized {
+                settingsWindow.deminiaturize(nil)
+            }
             settingsWindow.makeKeyAndOrderFront(nil)
+            settingsWindow.orderFrontRegardless()
         } else {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 600, height: 700),
@@ -301,7 +323,9 @@ final class StatusBarController: NSObject {
             window.makeKeyAndOrderFront(nil)
             settingsWindow = window
         }
-        NSApp.activate(ignoringOtherApps: true)
+        DispatchQueue.main.async {
+            NSApp.activate()
+        }
     }
 
     @objc private func quit() {
