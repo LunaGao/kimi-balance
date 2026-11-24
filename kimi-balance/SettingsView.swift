@@ -1,6 +1,28 @@
 import SwiftUI
 
+enum StatusBarDisplayMode: String, CaseIterable, Identifiable {
+    static let storageKey = "statusBarDisplayMode"
+
+    case avatarAndText
+    case avatarOnly
+    case textOnly
+    case circularProgress
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .avatarAndText: "Avatar + Text"
+        case .avatarOnly: "Avatar Only"
+        case .textOnly: "Text Only"
+        case .circularProgress: "Circular Progress"
+        }
+    }
+}
+
 struct SettingsView: View {
+    @AppStorage(StatusBarDisplayMode.storageKey) private var displayMode: StatusBarDisplayMode = .avatarAndText
+
     private let repositoryURL = URL(string: "https://github.com/LunaGao/kimi-balance")!
     private let subscriptionURL = URL(string: "https://www.kimi.com/settings/subscription")!
 
@@ -14,6 +36,15 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section("Menu Bar") {
+                Picker("Display Style", selection: $displayMode) {
+                    ForEach(StatusBarDisplayMode.allCases) { mode in
+                        Text(mode.title).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+
             Section("How to Use") {
                 InstructionStep(
                     number: 1,

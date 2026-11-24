@@ -9,7 +9,7 @@ final class StatusBarController: NSObject {
     private let updaterController: SPUStandardUpdaterController
     private let openMainWindowAction: () -> Void
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-    private var cancellable: AnyCancellable?
+    private var cancellables = Set<AnyCancellable>()
     private var totalUsageItem: NSMenuItem!
     private var totalResetItem: NSMenuItem!
     private var fiveHourUsageItem: NSMenuItem!
@@ -30,11 +30,18 @@ final class StatusBarController: NSObject {
         setupStatusItem()
         setupMenu()
         updateContent()
-        cancellable = model.objectWillChange
+        model.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 self?.updateContent()
             }
+            .store(in: &cancellables)
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.updateContent()
+            }
+            .store(in: &cancellables)
     }
 
     private func setupStatusItem() {
@@ -83,17 +90,43 @@ final class StatusBarController: NSObject {
         statusItem.menu = menu
     }
 
+    private var displayMode: StatusBarDisplayMode {
+        guard let rawValue = UserDefaults.standard.string(forKey: StatusBarDisplayMode.storageKey) else {
+            return .avatarAndText
+        }
+        return StatusBarDisplayMode(rawValue: rawValue) ?? .avatarAndText
+    }
+
+    private var placeholderAvatar: NSImage? {
+        NSImage(systemSymbolName: "person.circle.fill", accessibilityDescription: "用户头像")
+    }
+
     private func updateContent() {
-        if model.isLoginRequired {
+        if displayMode == .circularProgress {
             avatarLoadTask?.cancel()
             loadedAvatarURL = nil
-            statusItem.button?.image = nil
-            statusItem.button?.title = "请完成登录"
+            statusItem.button?.image = circularUsageImage()
+            statusItem.button?.title = ""
         } else {
-            statusItem.button?.title = " 总\(model.totalUsage) 5小时\(model.fiveHourUsage)"
-            if loadedAvatarURL != model.avatarURL {
-                loadedAvatarURL = model.avatarURL
-                loadAvatar()
+            let showsAvatar = displayMode != .textOnly
+            let showsText = displayMode != .avatarOnly
+
+            if model.isLoginRequired {
+                avatarLoadTask?.cancel()
+                loadedAvatarURL = nil
+                statusItem.button?.image = showsAvatar ? placeholderAvatar : nil
+                statusItem.button?.title = showsText ? "请完成登录" : ""
+            } else {
+                statusItem.button?.title = showsText ? " 总\(model.totalUsage) 5小时\(model.fiveHourUsage)" : ""
+                if showsAvatar {
+                    if loadedAvatarURL != model.avatarURL || statusItem.button?.image == nil {
+                        loadedAvatarURL = model.avatarURL
+                        loadAvatar()
+                    }
+                } else {
+                    avatarLoadTask?.cancel()
+                    statusItem.button?.image = nil
+                }
             }
         }
         totalUsageItem.title = "总使用量：\(model.totalUsage)"
@@ -104,10 +137,7 @@ final class StatusBarController: NSObject {
 
     private func loadAvatar() {
         avatarLoadTask?.cancel()
-        statusItem.button?.image = NSImage(
-            systemSymbolName: "person.circle.fill",
-            accessibilityDescription: "用户头像"
-        )
+        statusItem.button?.image = placeholderAvatar
         guard let url = model.avatarURL else { return }
 
         avatarLoadTask = Task { [weak self] in
@@ -119,8 +149,54 @@ final class StatusBarController: NSObject {
     }
 
     private func applyAvatar(_ image: NSImage, for url: URL) {
-        guard !model.isLoginRequired, model.avatarURL == url else { return }
+        guard !model.isLoginRequired,
+              displayMode == .avatarAndText || displayMode == .avatarOnly,
+              model.avatarURL == url else { return }
         statusItem.button?.image = circularAvatar(from: image)
+    }
+
+    private func circularUsageImage() -> NSImage {
+        let image = NSImage(size: NSSize(width: 40, height: 18))
+        image.lockFocus()
+        drawUsageProgress(
+            usageProgress(model.totalUsage),
+            in: NSRect(x: 0, y: 0, width: 18, height: 18)
+        )
+        drawUsageProgress(
+            usageProgress(model.fiveHourUsage),
+            in: NSRect(x: 22, y: 0, width: 18, height: 18)
+        )
+        image.unlockFocus()
+        image.isTemplate = true
+        image.accessibilityDescription = "总使用量：\(model.totalUsage)，5小时用量：\(model.fiveHourUsage)"
+        return image
+    }
+
+    private func usageProgress(_ usage: String) -> Double {
+        let value = usage.replacingOccurrences(of: "%", with: "")
+        guard let percentage = Double(value) else { return 0 }
+        return min(max(percentage / 100, 0), 1)
+    }
+
+    private func drawUsageProgress(_ progress: Double, in rect: NSRect) {
+        let track = NSBezierPath(ovalIn: rect.insetBy(dx: 2, dy: 2))
+        track.lineWidth = 3
+        NSColor.labelColor.withAlphaComponent(0.25).setStroke()
+        track.stroke()
+        guard progress > 0 else { return }
+
+        let path = NSBezierPath()
+        path.appendArc(
+            withCenter: NSPoint(x: rect.midX, y: rect.midY),
+            radius: min(rect.width, rect.height) / 2 - 2,
+            startAngle: 90,
+            endAngle: 90 - 360 * progress,
+            clockwise: true
+        )
+        path.lineWidth = 3
+        path.lineCapStyle = .round
+        NSColor.labelColor.setStroke()
+        path.stroke()
     }
 
     private func circularAvatar(from source: NSImage) -> NSImage {
@@ -142,6 +218,7 @@ final class StatusBarController: NSObject {
         source.draw(in: drawRect, from: .zero, operation: .sourceOver, fraction: 1)
         image.unlockFocus()
         image.isTemplate = false
+        image.accessibilityDescription = "用户头像"
         return image
     }
 
