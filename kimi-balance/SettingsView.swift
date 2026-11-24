@@ -1,27 +1,38 @@
 import SwiftUI
 
-enum StatusBarDisplayMode: String, CaseIterable, Identifiable {
-    static let storageKey = "statusBarDisplayMode"
+enum StatusBarDisplaySettings {
+    static let showsAvatarKey = "statusBarShowsAvatar"
+    static let showsTextKey = "statusBarShowsText"
+    static let showsCircularProgressKey = "statusBarShowsCircularProgress"
 
+    static func migrateIfNeeded() {
+        let defaults = UserDefaults.standard
+        let newKeys = [showsAvatarKey, showsTextKey, showsCircularProgressKey]
+        guard newKeys.allSatisfy({ defaults.object(forKey: $0) == nil }),
+              let rawValue = defaults.string(forKey: "statusBarDisplayMode"),
+              let legacyMode = LegacyStatusBarDisplayMode(rawValue: rawValue) else { return }
+
+        defaults.set(legacyMode == .avatarAndText || legacyMode == .avatarOnly, forKey: showsAvatarKey)
+        defaults.set(legacyMode == .avatarAndText || legacyMode == .textOnly, forKey: showsTextKey)
+        defaults.set(legacyMode == .circularProgress, forKey: showsCircularProgressKey)
+    }
+}
+
+private enum LegacyStatusBarDisplayMode: String {
     case avatarAndText
     case avatarOnly
     case textOnly
     case circularProgress
-
-    var id: Self { self }
-
-    var title: String {
-        switch self {
-        case .avatarAndText: "Avatar + Text"
-        case .avatarOnly: "Avatar Only"
-        case .textOnly: "Text Only"
-        case .circularProgress: "Circular Progress"
-        }
-    }
 }
 
 struct SettingsView: View {
-    @AppStorage(StatusBarDisplayMode.storageKey) private var displayMode: StatusBarDisplayMode = .avatarAndText
+    @AppStorage(StatusBarDisplaySettings.showsAvatarKey) private var showsAvatar = true
+    @AppStorage(StatusBarDisplaySettings.showsTextKey) private var showsText = true
+    @AppStorage(StatusBarDisplaySettings.showsCircularProgressKey) private var showsCircularProgress = false
+
+    init() {
+        StatusBarDisplaySettings.migrateIfNeeded()
+    }
 
     private let repositoryURL = URL(string: "https://github.com/LunaGao/kimi-balance")!
     private let subscriptionURL = URL(string: "https://www.kimi.com/settings/subscription")!
@@ -35,17 +46,21 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        Form {
-            Section("Menu Bar") {
-                Picker("Display Style", selection: $displayMode) {
-                    ForEach(StatusBarDisplayMode.allCases) { mode in
-                        Text(mode.title).tag(mode)
-                    }
-                }
-                .pickerStyle(.segmented)
+        TabView {
+            Form {
+                Toggle("Avatar", isOn: $showsAvatar)
+                    .disabled(showsAvatar && !showsText && !showsCircularProgress)
+                Toggle("Text", isOn: $showsText)
+                    .disabled(showsText && !showsAvatar && !showsCircularProgress)
+                Toggle("Circular Progress", isOn: $showsCircularProgress)
+                    .disabled(showsCircularProgress && !showsAvatar && !showsText)
+            }
+            .formStyle(.grouped)
+            .tabItem {
+                Label("Menu Bar", systemImage: "menubar.rectangle")
             }
 
-            Section("How to Use") {
+            Form {
                 InstructionStep(
                     number: 1,
                     title: "Launch Kimi Balance",
@@ -72,8 +87,12 @@ struct SettingsView: View {
                     description: "Usage refreshes every 60 seconds. Choose “Refresh Now” (立即刷新) for an immediate update. Closing the main window does not stop background refreshes."
                 )
             }
+            .formStyle(.grouped)
+            .tabItem {
+                Label("How to Use", systemImage: "questionmark.circle")
+            }
 
-            Section("About") {
+            Form {
                 LabeledContent("Application", value: "Kimi Balance")
                 LabeledContent("Version", value: version)
                 LabeledContent("Build", value: build)
@@ -88,8 +107,11 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            .formStyle(.grouped)
+            .tabItem {
+                Label("About", systemImage: "info.circle")
+            }
         }
-        .formStyle(.grouped)
         .frame(width: 600)
     }
 }

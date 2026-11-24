@@ -16,6 +16,7 @@ final class StatusBarController: NSObject {
     private var fiveHourResetItem: NSMenuItem!
     private var avatarLoadTask: Task<Void, Never>?
     private var loadedAvatarURL: URL?
+    private var avatarImage: NSImage?
     private var settingsWindow: NSWindow?
 
     init(
@@ -27,6 +28,7 @@ final class StatusBarController: NSObject {
         self.updaterController = updaterController
         openMainWindowAction = openMainWindow
         super.init()
+        StatusBarDisplaySettings.migrateIfNeeded()
         setupStatusItem()
         setupMenu()
         updateContent()
@@ -90,11 +92,20 @@ final class StatusBarController: NSObject {
         statusItem.menu = menu
     }
 
-    private var displayMode: StatusBarDisplayMode {
-        guard let rawValue = UserDefaults.standard.string(forKey: StatusBarDisplayMode.storageKey) else {
-            return .avatarAndText
+    private var displaySettings: (avatar: Bool, text: Bool, circularProgress: Bool) {
+        let defaults = UserDefaults.standard
+        func value(forKey key: String, default defaultValue: Bool) -> Bool {
+            defaults.object(forKey: key) == nil ? defaultValue : defaults.bool(forKey: key)
         }
-        return StatusBarDisplayMode(rawValue: rawValue) ?? .avatarAndText
+
+        let settings = (
+            avatar: value(forKey: StatusBarDisplaySettings.showsAvatarKey, default: true),
+            text: value(forKey: StatusBarDisplaySettings.showsTextKey, default: true),
+            circularProgress: value(forKey: StatusBarDisplaySettings.showsCircularProgressKey, default: false)
+        )
+        return settings.avatar || settings.text || settings.circularProgress
+            ? settings
+            : (avatar: false, text: true, circularProgress: false)
     }
 
     private var placeholderAvatar: NSImage? {
@@ -102,42 +113,51 @@ final class StatusBarController: NSObject {
     }
 
     private func updateContent() {
-        if displayMode == .circularProgress {
+        let settings = displaySettings
+        statusItem.button?.title = settings.text
+            ? model.isLoginRequired ? "请完成登录" : " 总\(model.totalUsage) 5小时\(model.fiveHourUsage)"
+            : ""
+
+        if model.isLoginRequired {
             avatarLoadTask?.cancel()
             loadedAvatarURL = nil
-            statusItem.button?.image = circularUsageImage()
-            statusItem.button?.title = ""
-        } else {
-            let showsAvatar = displayMode != .textOnly
-            let showsText = displayMode != .avatarOnly
-
-            if model.isLoginRequired {
-                avatarLoadTask?.cancel()
-                loadedAvatarURL = nil
-                statusItem.button?.image = showsAvatar ? placeholderAvatar : nil
-                statusItem.button?.title = showsText ? "请完成登录" : ""
-            } else {
-                statusItem.button?.title = showsText ? " 总\(model.totalUsage) 5小时\(model.fiveHourUsage)" : ""
-                if showsAvatar {
-                    if loadedAvatarURL != model.avatarURL || statusItem.button?.image == nil {
-                        loadedAvatarURL = model.avatarURL
-                        loadAvatar()
-                    }
-                } else {
-                    avatarLoadTask?.cancel()
-                    statusItem.button?.image = nil
-                }
+            avatarImage = settings.avatar ? placeholderAvatar : nil
+        } else if settings.avatar {
+            if loadedAvatarURL != model.avatarURL || avatarImage == nil {
+                loadedAvatarURL = model.avatarURL
+                loadAvatar()
             }
+        } else {
+            avatarLoadTask?.cancel()
+            loadedAvatarURL = nil
+            avatarImage = nil
         }
+        updateStatusImage()
         totalUsageItem.title = "总使用量：\(model.totalUsage)"
         totalResetItem.title = "总使用量重置时间：\(model.totalResetTime)"
         fiveHourUsageItem.title = "5小时用量：\(model.fiveHourUsage)"
         fiveHourResetItem.title = "5小时用量重置时间：\(model.fiveHourResetTime)"
     }
 
+    private func updateStatusImage() {
+        let settings = displaySettings
+        let avatar = settings.avatar ? avatarImage : nil
+        guard settings.circularProgress else {
+            statusItem.button?.image = avatar
+            return
+        }
+
+        let progress = circularUsageImage(isTemplate: avatar == nil)
+        statusItem.button?.image = if let avatar {
+            combinedStatusImage(avatar: avatar, progress: progress)
+        } else {
+            progress
+        }
+    }
+
     private func loadAvatar() {
         avatarLoadTask?.cancel()
-        statusItem.button?.image = placeholderAvatar
+        avatarImage = placeholderAvatar
         guard let url = model.avatarURL else { return }
 
         avatarLoadTask = Task { [weak self] in
@@ -149,25 +169,58 @@ final class StatusBarController: NSObject {
     }
 
     private func applyAvatar(_ image: NSImage, for url: URL) {
-        guard !model.isLoginRequired,
-              displayMode == .avatarAndText || displayMode == .avatarOnly,
-              model.avatarURL == url else { return }
-        statusItem.button?.image = circularAvatar(from: image)
+        guard !model.isLoginRequired, displaySettings.avatar, model.avatarURL == url else { return }
+        avatarImage = circularAvatar(from: image)
+        updateStatusImage()
     }
 
-    private func circularUsageImage() -> NSImage {
+    private var statusBarContentColor: NSColor {
+        guard let appearance = statusItem.button?.effectiveAppearance else { return .labelColor }
+        return appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? .white : .black
+    }
+
+    private func combinedStatusImage(avatar: NSImage, progress: NSImage) -> NSImage {
+        let spacing: CGFloat = 4
+        let size = NSSize(
+            width: avatar.size.width + spacing + progress.size.width,
+            height: max(avatar.size.height, progress.size.height)
+        )
+        let image = NSImage(size: size)
+        image.lockFocus()
+        avatar.draw(in: NSRect(
+            x: 0,
+            y: (size.height - avatar.size.height) / 2,
+            width: avatar.size.width,
+            height: avatar.size.height
+        ))
+        progress.draw(in: NSRect(
+            x: avatar.size.width + spacing,
+            y: (size.height - progress.size.height) / 2,
+            width: progress.size.width,
+            height: progress.size.height
+        ))
+        image.unlockFocus()
+        image.isTemplate = false
+        image.accessibilityDescription = "用户头像，\(progress.accessibilityDescription ?? "用量进度")"
+        return image
+    }
+
+    private func circularUsageImage(isTemplate: Bool = true) -> NSImage {
+        let color: NSColor = isTemplate ? .labelColor : statusBarContentColor
         let image = NSImage(size: NSSize(width: 40, height: 18))
         image.lockFocus()
         drawUsageProgress(
             usageProgress(model.totalUsage),
-            in: NSRect(x: 0, y: 0, width: 18, height: 18)
+            in: NSRect(x: 0, y: 0, width: 18, height: 18),
+            color: color
         )
         drawUsageProgress(
             usageProgress(model.fiveHourUsage),
-            in: NSRect(x: 22, y: 0, width: 18, height: 18)
+            in: NSRect(x: 22, y: 0, width: 18, height: 18),
+            color: color
         )
         image.unlockFocus()
-        image.isTemplate = true
+        image.isTemplate = isTemplate
         image.accessibilityDescription = "总使用量：\(model.totalUsage)，5小时用量：\(model.fiveHourUsage)"
         return image
     }
@@ -178,10 +231,10 @@ final class StatusBarController: NSObject {
         return min(max(percentage / 100, 0), 1)
     }
 
-    private func drawUsageProgress(_ progress: Double, in rect: NSRect) {
+    private func drawUsageProgress(_ progress: Double, in rect: NSRect, color: NSColor) {
         let track = NSBezierPath(ovalIn: rect.insetBy(dx: 2, dy: 2))
         track.lineWidth = 3
-        NSColor.labelColor.withAlphaComponent(0.25).setStroke()
+        color.withAlphaComponent(0.25).setStroke()
         track.stroke()
         guard progress > 0 else { return }
 
@@ -195,7 +248,7 @@ final class StatusBarController: NSObject {
         )
         path.lineWidth = 3
         path.lineCapStyle = .round
-        NSColor.labelColor.setStroke()
+        color.setStroke()
         path.stroke()
     }
 
