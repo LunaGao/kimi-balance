@@ -76,6 +76,7 @@ enum StatusBarDisplaySettings {
     static let showsAvatarKey = "statusBarShowsAvatar"
     static let showsTextKey = "statusBarShowsText"
     static let showsCircularProgressKey = "statusBarShowsCircularProgress"
+    static let showsExpirationProgressKey = "statusBarShowsExpirationProgress"
     static let contentOrderKey = "statusBarContentOrder"
     static let defaultContentOrder = StatusBarContentItem.allCases
     static let defaultContentOrderValue = "avatar,text,circularProgress"
@@ -125,6 +126,7 @@ struct SettingsView: View {
     @AppStorage(StatusBarDisplaySettings.showsAvatarKey) private var showsAvatar = true
     @AppStorage(StatusBarDisplaySettings.showsTextKey) private var showsText = true
     @AppStorage(StatusBarDisplaySettings.showsCircularProgressKey) private var showsCircularProgress = false
+    @AppStorage(StatusBarDisplaySettings.showsExpirationProgressKey) private var showsExpirationProgress = true
     @AppStorage(StatusBarDisplaySettings.contentOrderKey) private var contentOrder = StatusBarDisplaySettings.defaultContentOrderValue
     @State private var isUpdatingLaunchAtLogin = false
     @State private var launchAtLoginError: String?
@@ -255,6 +257,8 @@ struct SettingsView: View {
                     .listStyle(.bordered)
                     .scrollDisabled(true)
                     .frame(height: 150)
+                    Toggle(localized("settings.show_expiration_progress"), isOn: $showsExpirationProgress)
+                        .disabled(!showsCircularProgress)
                 } header: {
                     Text(localized("settings.content"))
                 } footer: {

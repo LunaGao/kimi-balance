@@ -10,8 +10,10 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
     @Published private(set) var errorMessage: String?
     @Published private(set) var totalUsage = "--"
     @Published private(set) var totalResetTime = "--"
+    @Published private(set) var totalResetDate: Date?
     @Published private(set) var fiveHourUsage = "--"
     @Published private(set) var fiveHourResetTime = "--"
+    @Published private(set) var fiveHourResetDate: Date?
     @Published private(set) var avatarURL: URL?
 
     private let subscriptionURL = URL(string: "https://www.kimi.com/settings/subscription")!
@@ -118,8 +120,10 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
         errorMessage = nil
         totalUsage = "--"
         totalResetTime = "--"
+        totalResetDate = nil
         fiveHourUsage = "--"
         fiveHourResetTime = "--"
+        fiveHourResetDate = nil
         avatarURL = nil
     }
 
@@ -133,6 +137,58 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
             let isValid = cookie.expiresDate.map { $0 > Date() } ?? true
             return isKimiDomain && isValid
         }
+    }
+
+    private static func resetDate(from resetTime: String, now: Date = Date()) -> Date? {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .current
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = calendar
+        formatter.timeZone = .current
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        let absoluteDatePattern = #"\d{4}-\d{1,2}-\d{1,2}\s+\d{1,2}:\d{2}"#
+        if let range = resetTime.range(of: absoluteDatePattern, options: .regularExpression),
+           let date = formatter.date(from: String(resetTime[range])) {
+            return date
+        }
+
+        let monthDayPattern = #"\d{1,2}-\d{1,2}\s+\d{1,2}:\d{2}"#
+        if let range = resetTime.range(of: monthDayPattern, options: .regularExpression) {
+            formatter.dateFormat = "MM-dd HH:mm"
+            if let date = formatter.date(from: String(resetTime[range])) {
+                let currentYear = calendar.component(.year, from: now)
+                var components = calendar.dateComponents([.month, .day, .hour, .minute], from: date)
+                components.year = currentYear
+                if let resetDate = calendar.date(from: components) {
+                    if resetDate >= now { return resetDate }
+                    components.year = currentYear + 1
+                    return calendar.date(from: components)
+                }
+            }
+        }
+
+        let relativePattern = #"(\d+(?:\.\d+)?)\s*(天|小时|分钟|分|秒|days?|d|hours?|hrs?|hr|h|minutes?|mins?|min|m|seconds?|secs?|sec|s)"#
+        guard let regex = try? NSRegularExpression(
+            pattern: relativePattern,
+            options: [.caseInsensitive]
+        ) else { return nil }
+        let range = NSRange(resetTime.startIndex..<resetTime.endIndex, in: resetTime)
+        let matches = regex.matches(in: resetTime, range: range)
+        var interval: TimeInterval = 0
+        for match in matches {
+            guard let valueRange = Range(match.range(at: 1), in: resetTime),
+                  let unitRange = Range(match.range(at: 2), in: resetTime),
+                  let value = Double(resetTime[valueRange]) else { continue }
+            switch resetTime[unitRange].lowercased() {
+            case "天", "d", "day", "days": interval += value * 86_400
+            case "小时", "h", "hr", "hrs", "hour", "hours": interval += value * 3_600
+            case "分钟", "分", "m", "min", "mins", "minute", "minutes": interval += value * 60
+            case "秒", "s", "sec", "secs", "second", "seconds": interval += value
+            default: break
+            }
+        }
+        return interval > 0 ? now.addingTimeInterval(interval) : nil
     }
 
     private func readUsageWhenReady(generation: Int) {
@@ -187,8 +243,14 @@ final class SubscriptionModel: NSObject, ObservableObject, WKNavigationDelegate 
                 let fiveHour = values["fiveHour"] as? String
                 if let total { totalUsage = total }
                 if let fiveHour { fiveHourUsage = fiveHour }
-                if let reset = values["totalReset"] as? String { totalResetTime = reset }
-                if let reset = values["fiveHourReset"] as? String { fiveHourResetTime = reset }
+                if let reset = values["totalReset"] as? String {
+                    totalResetTime = reset
+                    totalResetDate = Self.resetDate(from: reset)
+                }
+                if let reset = values["fiveHourReset"] as? String {
+                    fiveHourResetTime = reset
+                    fiveHourResetDate = Self.resetDate(from: reset)
+                }
                 if total != nil && fiveHour != nil { return }
             }
             if generation == loadGeneration {

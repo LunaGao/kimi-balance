@@ -51,6 +51,12 @@ final class StatusBarController: NSObject {
                 self?.updateContent()
             }
             .store(in: &cancellables)
+        Timer.publish(every: 60, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.updateStatusContent()
+            }
+            .store(in: &cancellables)
     }
 
     private func setupStatusItem() {
@@ -131,6 +137,7 @@ final class StatusBarController: NSObject {
         avatar: Bool,
         text: Bool,
         circularProgress: Bool,
+        expirationProgress: Bool,
         contentOrder: [StatusBarContentItem]
     ) {
         let defaults = UserDefaults.standard
@@ -142,11 +149,18 @@ final class StatusBarController: NSObject {
             avatar: value(forKey: StatusBarDisplaySettings.showsAvatarKey, default: true),
             text: value(forKey: StatusBarDisplaySettings.showsTextKey, default: true),
             circularProgress: value(forKey: StatusBarDisplaySettings.showsCircularProgressKey, default: false),
+            expirationProgress: value(forKey: StatusBarDisplaySettings.showsExpirationProgressKey, default: true),
             contentOrder: StatusBarDisplaySettings.contentOrder
         )
         return settings.avatar || settings.text || settings.circularProgress
             ? settings
-            : (avatar: false, text: true, circularProgress: false, contentOrder: settings.contentOrder)
+            : (
+                avatar: false,
+                text: true,
+                circularProgress: false,
+                expirationProgress: settings.expirationProgress,
+                contentOrder: settings.contentOrder
+            )
     }
 
     private var placeholderAvatar: NSImage? {
@@ -223,7 +237,10 @@ final class StatusBarController: NSObject {
                 guard settings.circularProgress else { continue }
                 let isTemplate = !settings.avatar || avatarImage == nil
                 contentStackView.addArrangedSubview(NSImageView(
-                    image: circularUsageImage(isTemplate: isTemplate)
+                    image: circularUsageImage(
+                        isTemplate: isTemplate,
+                        showsExpirationProgress: settings.expirationProgress
+                    )
                 ))
             }
         }
@@ -254,20 +271,35 @@ final class StatusBarController: NSObject {
         return appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? .white : .black
     }
 
-    private func circularUsageImage(isTemplate: Bool = true) -> NSImage {
+    private func circularUsageImage(
+        isTemplate: Bool = true,
+        showsExpirationProgress: Bool = true
+    ) -> NSImage {
         let color: NSColor = isTemplate ? .labelColor : statusBarContentColor
         let image = NSImage(size: NSSize(width: 40, height: 18))
         image.lockFocus()
-        drawUsageProgress(
-            usageProgress(model.totalUsage),
-            in: NSRect(x: 0, y: 0, width: 18, height: 18),
-            color: color
-        )
-        drawUsageProgress(
-            usageProgress(model.fiveHourUsage),
-            in: NSRect(x: 22, y: 0, width: 18, height: 18),
-            color: color
-        )
+        let totalRect = NSRect(x: 0, y: 0, width: 18, height: 18)
+        let fiveHourRect = NSRect(x: 22, y: 0, width: 18, height: 18)
+        drawCircularProgress(usageProgress(model.totalUsage), in: totalRect, color: color)
+        if showsExpirationProgress {
+            drawExpirationProgress(
+                resetDate: model.totalResetDate,
+                period: .month,
+                value: 1,
+                in: totalRect,
+                color: color
+            )
+        }
+        drawCircularProgress(usageProgress(model.fiveHourUsage), in: fiveHourRect, color: color)
+        if showsExpirationProgress {
+            drawExpirationProgress(
+                resetDate: model.fiveHourResetDate,
+                period: .hour,
+                value: 5,
+                in: fiveHourRect,
+                color: color
+            )
+        }
         image.unlockFocus()
         image.isTemplate = isTemplate
         image.accessibilityDescription = localized(
@@ -284,9 +316,49 @@ final class StatusBarController: NSObject {
         return min(max(percentage / 100, 0), 1)
     }
 
-    private func drawUsageProgress(_ progress: Double, in rect: NSRect, color: NSColor) {
-        let track = NSBezierPath(ovalIn: rect.insetBy(dx: 2, dy: 2))
-        track.lineWidth = 3
+    private func drawExpirationProgress(
+        resetDate: Date?,
+        period: Calendar.Component,
+        value: Int,
+        in rect: NSRect,
+        color: NSColor
+    ) {
+        guard let progress = expirationProgress(resetDate: resetDate, period: period, value: value) else { return }
+        drawCircularProgress(
+            progress,
+            in: rect.insetBy(dx: 4.5, dy: 4.5),
+            color: color,
+            lineWidth: 2,
+            trackInset: 1
+        )
+    }
+
+    private func expirationProgress(
+        resetDate: Date?,
+        period: Calendar.Component,
+        value: Int
+    ) -> Double? {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .current
+        guard let resetDate,
+              let startDate = calendar.date(byAdding: period, value: -value, to: resetDate) else {
+            return nil
+        }
+        let duration = resetDate.timeIntervalSince(startDate)
+        guard duration > 0 else { return nil }
+        let elapsed = Date().timeIntervalSince(startDate) / duration
+        return min(max(elapsed, 0), 1)
+    }
+
+    private func drawCircularProgress(
+        _ progress: Double,
+        in rect: NSRect,
+        color: NSColor,
+        lineWidth: CGFloat = 2,
+        trackInset: CGFloat = 2
+    ) {
+        let track = NSBezierPath(ovalIn: rect.insetBy(dx: trackInset, dy: trackInset))
+        track.lineWidth = lineWidth
         color.withAlphaComponent(0.25).setStroke()
         track.stroke()
         guard progress > 0 else { return }
@@ -294,12 +366,12 @@ final class StatusBarController: NSObject {
         let path = NSBezierPath()
         path.appendArc(
             withCenter: NSPoint(x: rect.midX, y: rect.midY),
-            radius: min(rect.width, rect.height) / 2 - 2,
+            radius: min(rect.width, rect.height) / 2 - trackInset,
             startAngle: 90,
             endAngle: 90 - 360 * progress,
             clockwise: true
         )
-        path.lineWidth = 3
+        path.lineWidth = lineWidth
         path.lineCapStyle = .round
         color.setStroke()
         path.stroke()

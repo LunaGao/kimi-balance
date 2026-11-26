@@ -2,7 +2,7 @@
 
 一款原生 macOS 菜单栏应用，用于展示 Kimi 订阅的总使用量和 5 小时用量，并在后台自动刷新数据。
 
-- 当前版本：1.5 (6)
+- 当前版本：1.6 (7)
 - GitHub：[LunaGao/kimi-balance](https://github.com/LunaGao/kimi-balance)
 - 下载：[Releases](https://github.com/LunaGao/kimi-balance/releases)
 
@@ -66,7 +66,7 @@
 点击菜单栏中的“设置…”，可以配置界面语言、状态栏展示内容，并查看：
 
 - 在“通用 / General”页的“语言 / Language”选项中选择中文或英文。
-- 头像、文字和双圆形进度条可多选并自由组合；两个圆环分别表示总使用量和 5 小时用量。
+- 头像、文字和双圆形进度条可多选并自由组合；两个外圈分别表示总使用量和 5 小时用量，内部小圆环表示各自距离重置的已流逝时间比例，可在设置中独立开关。
 - 中英文操作流程（使用指南 / How to Use）。
 - 应用版本号和构建号。
 - GitHub 仓库与 Kimi 订阅数据来源链接。
